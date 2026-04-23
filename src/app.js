@@ -1,10 +1,11 @@
 import express from "express";
 import cors from "cors";
-import authRouter from "./routes/auth.js";
-import usersRouter from "./routes/users.js";
-import tasksRouter from "./routes/tasks.js";
-import diariesRouter from "./routes/diaries.js";
-import weeksRouter from "./routes/weeks.js";
+import authRouter from "./routes/authRoutes.js";
+import usersRouter from "./routes/userRoutes.js";
+import tasksRouter from "./routes/taskRoutes.js";
+import diariesRouter from "./routes/diaryRoutes.js";
+import weeksRouter from "./routes/weekRoutes.js";
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 export const setupServer = () => {
   const app = express();
@@ -23,6 +24,7 @@ export const setupServer = () => {
   app.use("/api/tasks", tasksRouter);
   app.use("/api/diaries", diariesRouter);
   app.use("/api/weeks", weeksRouter);
+  app.use(errorHandler);
 
   return app;
 };
