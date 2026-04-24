@@ -12,4 +12,4 @@ Backend for pregnancy tracking application. Provides API for authentication, use
 
 ```bash
 npm install
-npm run dev 
+npm run dev  
