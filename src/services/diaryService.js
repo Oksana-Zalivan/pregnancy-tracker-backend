@@ -10,4 +10,4 @@ export const updateDiary = async (id, userId, data) => {
 
 export const deleteDiary = async (id, userId) => {
   return Diary.findOneAndDelete({ _id: id, userId });
-};
+}; 
