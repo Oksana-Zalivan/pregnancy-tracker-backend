@@ -1,9 +1,12 @@
 import express from "express";
+import celebrate from celebrate;
 
-const router = express.Router();
+import { taskValidationSchema } from "../validation/tasksValidation";
 
-router.get("/", (req, res) => {
-  res.json({ message: "Tasks endpoint works" });
-});
+const tasksRouter = express.Router();
 
-export default router;
+tasksRouter.post('/api/tasks', celebrate(taskValidationSchema), )
+
+tasksRouter.get('api/tasks', celebrate(taskValidationSchema), );
+
+export default tasksRouter;
