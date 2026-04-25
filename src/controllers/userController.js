@@ -1,5 +1,7 @@
-import User from "../models/user.js";
+import createHttpError from 'http-errors';
+import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 import * as userService from "../services/userService.js";
+import { User } from "../models/user.js";
 
 export const getCurrentUserController = (req, res) => {
   res.json({
@@ -8,6 +10,9 @@ export const getCurrentUserController = (req, res) => {
       id: req.user._id,
       name: req.user.name,
       email: req.user.email,
+      gender: req.user.gender,
+      dueDate: req.user.dueDate,
+      avatar: req.user.avatar,
     },
   });
 };
@@ -36,3 +41,40 @@ export const updateUserProfileController = async (req, res, next) => {
     next(error);
   }
 };
+
+export const updateUserAvatar = async (req, res, next) => {
+  try {
+  if (!req.file) {
+    throw createHttpError(400, "Файл не передано");
+  }
+
+  const result = await saveFileToCloudinary(req.file.buffer);
+  if (!result) {
+    throw createHttpError(500, "Помилка завантаження аватара");
+  }
+
+  const user = await User.findOneAndUpdate(
+    { _id: req.user._id },
+    { avatar: result.secure_url },
+    { returnDocument: "after" },
+  );
+  if (!user) {
+    throw createHttpError(500, "Помилка оновлення аватара користувача");
+  }
+
+  res.status(200).json({ 
+    message: "Аватар успішно оновлено",
+    data: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      gender:user.gender,
+      dueDate: user.dueDate,
+      avatar: user.avatar,
+    },
+  });
+  } catch (error) {
+    next (error);
+  }
+};
+

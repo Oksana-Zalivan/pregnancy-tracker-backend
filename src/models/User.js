@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
-const { Schema, model } = mongoose;
+
+const { Schema, model, models } = mongoose;
 
 const userSchema = new Schema(
   {
@@ -42,6 +43,11 @@ const userSchema = new Schema(
   }
 );
 
-const User = mongoose.models.user || mongoose.model('user', userSchema);
+userSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  return obj;
+};
 
-export default User;
+export const User = models.user || model("user", userSchema);
+

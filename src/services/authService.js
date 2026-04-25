@@ -1,4 +1,4 @@
-import { User } from "../models/user.js";
+import { User } from "../models/User.js";
 
 export const registerUser = async (payload) => {
   const existingUser = await User.findOne({ email: payload.email });
