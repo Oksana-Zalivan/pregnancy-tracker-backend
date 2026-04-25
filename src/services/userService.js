@@ -1,4 +1,4 @@
-import User from "../models/user.js";
+import { User } from "../models/user.js";
 
 export const updateUser = async (userId, updateData) => {
   return await User.findByIdAndUpdate(userId, updateData, {
