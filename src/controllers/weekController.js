@@ -49,3 +49,37 @@ export const getMomBodyByWeek = async (req, res, next) => {
     next(error);
   }
 };
+export const getPublicCurrentWeek = async (req, res, next) => {
+  try {
+    // Для незареєстрованого користувача завжди 1-й тиждень 
+    const weekNumber = 1; 
+
+    const baby = await getBabyByWeekNumber(weekNumber);
+    const mom = await getMomBodyByWeekNumber(weekNumber);
+
+    if (!baby || !mom) {
+      return res.status(404).json({ message: "Initial week data not found" });
+    }
+
+    // Розрахунок днів згідно ТЗ: не більше 39 тижнів у днях 
+    const daysUntilBirth = 39 * 7; 
+
+    // Формуємо відповідь згідно з потребами DashboardPage 
+    return res.status(200).json({
+      weekNumber,
+      daysUntilBirth,
+      baby: {
+        analogy: baby.analogy,
+        size: baby.babySize,
+        weight: baby.babyWeight,
+        image: baby.image,
+        activity: baby.babyActivity,
+        development: baby.babyDevelopment,
+      },
+      // Поради в ТЗ щоденні, для 1-го тижня повертаємо першу 
+      momTip: baby.momDailyTips[0] 
+    });
+  } catch (error) {
+    next(error);
+  }
+};
