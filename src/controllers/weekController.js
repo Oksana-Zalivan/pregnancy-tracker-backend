@@ -7,9 +7,9 @@ export const getBabyByWeek = async (req, res, next) => {
   try {
     const weekNumber = Number(req.params.weekNumber);
 
-    if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 42) {
+    if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 39) {
       return res.status(400).json({
-        message: "weekNumber must be an integer between 1 and 42",
+        message: "Номер тижня має бути цілим числом від 1 до 39 ",
       });
     }
 
@@ -17,7 +17,7 @@ export const getBabyByWeek = async (req, res, next) => {
 
     if (!week) {
       return res.status(404).json({
-        message: `Baby data for week ${weekNumber} not found`,
+        message: `Дані дитини за тиждень ${weekNumber} не знайдено`,
       });
     }
 
@@ -31,16 +31,16 @@ export const getMomBodyByWeek = async (req, res, next) => {
   try {
     const weekNumber = Number(req.params.weekNumber);
 
-    if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 42) {
+    if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 39) {
       return res.status(400).json({
-        message: "weekNumber must be an integer between 1 and 42",
+        message: "Номер тижня має бути цілим числом від 1 до 39",
       });
     }
 
     const week = await getMomBodyByWeekNumber(weekNumber);
     if (!week) {
       return res.status(404).json({
-        message: `Mom data for week ${weekNumber} not found`,
+        message: `Дані мами за тиждень ${weekNumber} не знайдено`,
       });
     }
 
@@ -58,7 +58,7 @@ export const getPublicCurrentWeek = async (req, res, next) => {
     const mom = await getMomBodyByWeekNumber(weekNumber);
 
     if (!baby || !mom) {
-      return res.status(404).json({ message: "Initial week data not found" });
+      return res.status(404).json({ message: "Дані початкового тижня не знайдено" });
     }
 
     // Розрахунок днів згідно ТЗ: не більше 39 тижнів у днях 
