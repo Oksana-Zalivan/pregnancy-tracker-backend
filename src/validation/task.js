@@ -1,4 +1,3 @@
-import { Joi, Segments } from "celebrate";
 import JoiBase from 'joi';
 import JoiDate from '@joi/date';
 
