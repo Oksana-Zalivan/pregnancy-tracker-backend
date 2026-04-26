@@ -8,7 +8,7 @@ export const updateTaskStatus = async (req, res) => {
     const updatedTask = await Task.findByIdAndUpdate(
       taskId,
       { status },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedTask) {
