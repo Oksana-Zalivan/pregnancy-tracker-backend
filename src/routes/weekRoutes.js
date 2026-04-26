@@ -8,10 +8,6 @@ import { authenticate } from "../middlewares/authenticate.js";
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.json({ message: "Weeks endpoint works" });
-});
-
 router.get("/public/current", getPublicCurrentWeek);
 
 router.get("/:weekNumber/baby", authenticate, getBabyByWeek);
