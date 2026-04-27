@@ -1,13 +1,13 @@
-import { registerUser } from "../services/authService.js";
-import { loginUser } from "../services/authService.js";
-import bcrypt from "bcrypt";
+import { registerUser } from '../services/authService.js';
+import { loginUser } from '../services/authService.js';
+import bcrypt from 'bcrypt';
 
 export const registerController = async (req, res, next) => {
   try {
     const user = await registerUser(req.body);
 
     res.status(201).json({
-      message: "Реєстрація успішна",
+      message: 'Реєстрація успішна',
       data: {
         id: user._id,
         name: user.name,
@@ -19,7 +19,7 @@ export const registerController = async (req, res, next) => {
   }
 };
 
-// Login a user controller
+// Login controller
 export const loginController = async (req, res) => {
   try {
     const user = await loginUser(req.body);
