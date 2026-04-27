@@ -8,6 +8,7 @@ import { Session } from '../models/session.js';
 // Imports
 import { createSession, setSessionCookies } from '../services/authService.js';
 
+// Register controller
 export const registerController = async (req, res, next) => {
   try {
     const user = await registerUser(req.body);
