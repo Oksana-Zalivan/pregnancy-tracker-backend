@@ -1,4 +1,4 @@
-import { Diary } from "../models/Diary.js";
+import { Diary } from "../models/diary.js";
 
 export const updateDiary = async (id, userId, data) => {
   return Diary.findOneAndUpdate(
