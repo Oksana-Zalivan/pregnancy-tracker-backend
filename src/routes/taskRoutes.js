@@ -1,12 +1,19 @@
 import express from "express";
-import { updateTaskStatus } from "../controllers/taskController.js";
+import { celebrate } from "celebrate";
+import { authenticate } from "../middlewares/authenticate.js"
+import { createTaskValidationSchema } from "../validation/task.js";
+import { createTask, getAllTasks } from "../controllers/taskController.js";
 
-const router = express.Router();
+const tasksRouter = express.Router();
 
-router.get("/", (req, res) => {
-  res.json({ message: "Tasks endpoint works" });
-});
+tasksRouter.post(
+  '/',
+  authenticate,
+  celebrate(createTaskValidationSchema), 
+  createTask
+);
 
-router.patch("/:taskId/status", updateTaskStatus);
+tasksRouter.get('/', authenticate, getAllTasks);
 
-export default router;
+export default tasksRouter;
+
