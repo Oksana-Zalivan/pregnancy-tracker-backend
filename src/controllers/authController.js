@@ -19,15 +19,10 @@ export const registerController = async (req, res, next) => {
   }
 };
 
-// Login User
-
+// Login a user controller
 export const loginController = async (req, res) => {
   try {
     const user = await loginUser(req.body);
-
-    const password = await passwordUser(req.body);
-
-    const isValidPassword = await bcrypt;
 
     res.status(200).json({ user });
   } catch (error) {
