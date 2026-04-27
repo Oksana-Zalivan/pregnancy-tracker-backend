@@ -1,3 +1,4 @@
+// Lib
 import crypto from 'crypto';
 // Imports
 import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time.js';
@@ -32,6 +33,11 @@ export const loginUser = async (payload) => {
   }
 
   return user;
+};
+
+// This is the user Logout logic
+export const logoutUser = async (cookies) => {
+  await Session.deleteOne({ _id: cookies.sessionId });
 };
 
 // This is the Session logic
