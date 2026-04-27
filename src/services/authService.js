@@ -1,4 +1,5 @@
-import { User } from "../models/User.js";
+import bcrypt from "bcrypt";
+import { User } from "../models/user.js";
 
 export const registerUser = async (payload) => {
   const existingUser = await User.findOne({ email: payload.email });
@@ -7,7 +8,12 @@ export const registerUser = async (payload) => {
     throw new Error("Користувач з таким email вже існує");
   }
 
-  const user = await User.create(payload);
+  const hashedPassword = await bcrypt.hash(payload.password, 10);
+
+  const user = await User.create({
+    ...payload,
+    password: hashedPassword,
+  });
 
   return user;
 };

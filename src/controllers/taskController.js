@@ -1,4 +1,4 @@
-import Task from "../models/Task.js";
+import Task from "../models/task.js";
 
 export const updateTaskStatus = async (req, res) => {
   try {
@@ -21,4 +21,4 @@ export const updateTaskStatus = async (req, res) => {
   }
 };
 
-export default mongoose.model("Task", taskSchema);
+

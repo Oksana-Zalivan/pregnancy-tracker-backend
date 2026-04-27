@@ -1,4 +1,4 @@
-import { BabyWeek, MomWeek } from "../models/Week.js";
+import { BabyWeek, MomWeek } from "../models/week.js";
 
 export const getBabyByWeekNumber = async (weekNumber) => {
   return await BabyWeek.findOne({ weekNumber }).lean();
