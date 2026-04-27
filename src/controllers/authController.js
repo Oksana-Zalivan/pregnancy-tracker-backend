@@ -1,6 +1,12 @@
-import { registerUser } from '../services/authService.js';
-import { loginUser } from '../services/authService.js';
+// Lib
 import bcrypt from 'bcrypt';
+// Services
+import { loginUser } from '../services/authService.js';
+import { registerUser } from '../services/authService.js';
+// Models
+import { Session } from '../models/session.js';
+// Imports
+import { createSession, setSessionCookies } from '../services/authService.js';
 
 export const registerController = async (req, res, next) => {
   try {
@@ -20,11 +26,26 @@ export const registerController = async (req, res, next) => {
 };
 
 // Login controller
-export const loginController = async (req, res) => {
+export const loginController = async (req, res, next) => {
   try {
     const user = await loginUser(req.body);
 
     res.status(200).json({ user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Logout controller
+export const logoutUserController = async (req, res, next) => {
+  try {
+    await logoutUser(req.cookies);
+
+    res.clearCookie('sessionId');
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+
+    res.status(204).send();
   } catch (error) {
     next(error);
   }
