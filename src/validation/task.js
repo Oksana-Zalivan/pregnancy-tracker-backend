@@ -1,6 +1,8 @@
 import JoiBase from 'joi';
 import JoiDate from '@joi/date';
 
+import { Segments } from "celebrate";
+
 const Joi = JoiBase.extend(JoiDate);
 
 const curDate = new Date();
@@ -14,7 +16,7 @@ export const createTaskValidationSchema = {
             "string.max": "Назва не може бути довшою за 96 символів",
         }),
         date: Joi.date().format('YYYY-MM-DD').min(curDate).messages({
-            "string.format": "Некорректний формат дати",
+            "string.format": "Некоректний формат дати",
             "string.min": "Дата не може бути раніше сьогоднішньої",
         }),
         isDone: Joi.boolean().default(false),
