@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 const taskSchema = new mongoose.Schema({
   title: String,
   status: {
@@ -6,3 +8,7 @@ const taskSchema = new mongoose.Schema({
     default: "pending",
   },
 });
+
+const Task = mongoose.models.Task || mongoose.model("Task", taskSchema);
+
+export default Task;
