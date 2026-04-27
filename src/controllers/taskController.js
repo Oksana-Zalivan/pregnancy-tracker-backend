@@ -1,14 +1,14 @@
-import Task from "../models/Task.js";
+import { Task } from "../models/task.js";
 
 export const updateTaskStatus = async (req, res) => {
   try {
     const { taskId } = req.params;
-    const { status } = req.body;
+    const { isDone } = req.body;
 
-    const updatedTask = await Task.findByIdAndUpdate(
-      taskId,
-      { status },
-      { new: true }
+    const updatedTask = await Task.findOneAndUpdate(
+      { _id: taskId, userId: req.user._id },
+      { isDone },
+      { returnDocument: "after" }
     );
 
     if (!updatedTask) {
@@ -20,5 +20,3 @@ export const updateTaskStatus = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
-export default mongoose.model("Task", taskSchema);
