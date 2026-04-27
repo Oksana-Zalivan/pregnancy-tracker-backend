@@ -1,11 +1,15 @@
-import { User } from "../models/User.js";
-import crypto from "crypto";
+import crypto from 'crypto';
+// Imports
+import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time.js';
+// Models
+import { User } from '../models/User.js';
+import { Session } from '../models/session.js';
 
 export const registerUser = async (payload) => {
   const existingUser = await User.findOne({ email: payload.email });
 
   if (existingUser) {
-    throw new Error("Користувач з таким email вже існує");
+    throw new Error('Користувач з таким email вже існує');
   }
 
   const user = await User.create(payload);
@@ -18,14 +22,28 @@ export const loginUser = async (payload) => {
   const user = await User.findOne({ email: payload.email });
 
   if (!user) {
-    throw new Error("Користувача з таким email чи паролем не існує!");
+    throw new Error('Користувача з таким email чи паролем не існує!');
   }
 
   const isValidPassword = await bcrypt.compare(payload.password, user.password);
 
   if (!isValidPassword) {
-    throw new Error("Користувача з таким email чи паролем не існує!");
+    throw new Error('Користувача з таким email чи паролем не існує!');
   }
 
   return user;
+};
+
+// This is the Session logic
+export const createSession = async (userId) => {
+  const accessToken = crypto.randomBytes(30).toString('base64');
+  const refreshToken = crypto.randomBytes(30).toString('base64');
+
+  return Session.create({
+    userId,
+    accessToken,
+    refreshToken,
+    accsesTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
+    refreshTokenValidUntil: new Date(Date.now() + ONE_DAY),
+  });
 };
