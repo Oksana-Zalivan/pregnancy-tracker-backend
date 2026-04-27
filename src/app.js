@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import authRouter from "./routes/authRoutes.js";
 import usersRouter from "./routes/userRoutes.js";
 import tasksRouter from "./routes/taskRoutes.js";
@@ -12,6 +13,7 @@ export const setupServer = () => {
 
   app.use(cors());
   app.use(express.json());
+  app.use(cookieParser());
 
   app.get("/", (req, res) => {
     res.json({
@@ -24,6 +26,7 @@ export const setupServer = () => {
   app.use("/api/tasks", tasksRouter);
   app.use("/api/diaries", diariesRouter);
   app.use("/api/weeks", weeksRouter);
+
   app.use(errorHandler);
 
   return app;
