@@ -4,7 +4,7 @@ import authRouter from "./routes/authRoutes.js";
 import usersRouter from "./routes/userRoutes.js";
 import tasksRouter from "./routes/taskRoutes.js";
 import diariesRouter from "./routes/diaryRoutes.js";
-import weeksRouter from "./routes/weekRoutes.js";
+import weekRouter from "./routes/weekRoutes.js";
 import { errorHandler } from "./middlewares/errorHandler.js";
 
 export const setupServer = () => {
@@ -23,7 +23,7 @@ export const setupServer = () => {
   app.use("/api/users", usersRouter);
   app.use("/api/tasks", tasksRouter);
   app.use("/api/diaries", diariesRouter);
-  app.use("/api/weeks", weeksRouter);
+  app.use("/api/weeks", weekRouter);
   app.use(errorHandler);
 
   return app;
