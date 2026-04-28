@@ -1,7 +1,7 @@
 import express from "express";
 import { celebrate } from "celebrate";
 import { authenticate } from "../middlewares/authenticate.js";
-import { createTaskValidationSchema } from "../validation/auth.js";
+import { createTaskValidationSchema } from "../validation/task.js";
 
 import {
   createTask,
