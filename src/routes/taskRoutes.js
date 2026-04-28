@@ -1,7 +1,7 @@
 import express from "express";
 import { celebrate } from "celebrate";
 import { authenticate } from "../middlewares/authenticate.js";
-import { createTaskValidationSchema } from "../validation/task.js";
+import { createTaskValidationSchema, updateTaskStatusValidationSchema, } from "../validation/task.js";
 
 import {
   createTask,
@@ -23,6 +23,7 @@ tasksRouter.get("/", authenticate, getAllTasks);
 tasksRouter.patch(
   "/:taskId/status",
   authenticate,
+  celebrate(updateTaskStatusValidationSchema),
   updateTaskStatus
 );
 

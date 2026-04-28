@@ -1,4 +1,4 @@
-import { Task } from "../models/Task.js";
+import { Task } from "../models/task.js";
 
 export const getAllTasks = async (req, res, next) => {
   try {
@@ -42,7 +42,7 @@ export const updateTaskStatus = async (req, res, next) => {
 
     if (!updatedTask) {
       return res.status(404).json({
-        message: "Task not found",
+        message: "Завдання не знайдено",
       });
     }
 
