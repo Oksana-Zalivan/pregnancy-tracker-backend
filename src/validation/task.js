@@ -1,24 +1,30 @@
-import JoiBase from 'joi';
-import JoiDate from '@joi/date';
-
-import { Segments } from "celebrate";
-
-const Joi = JoiBase.extend(JoiDate);
-
-const curDate = new Date();
+import { Joi, Segments } from 'celebrate';
 
 export const createTaskValidationSchema = {
-    [Segments.BODY]: Joi.object({
-        name: Joi.string().min(1).max(96).required().messages({
-            "string.empty": "Назва є обовʼязковою",
-            "any.required": "Назва є обовʼязковою",
-            "string.min": "Назва має містити щонайменше 1 символ",
-            "string.max": "Назва не може бути довшою за 96 символів",
-        }),
-        date: Joi.date().format('YYYY-MM-DD').min(curDate).messages({
-            "string.format": "Некоректний формат дати",
-            "string.min": "Дата не може бути раніше сьогоднішньої",
-        }),
-        isDone: Joi.boolean().default(false),
+  [Segments.BODY]: Joi.object({
+    name: Joi.string().min(1).max(96).required().messages({
+      'string.empty': 'Назва завдання є обовʼязковою',
+      'any.required': 'Назва завдання є обовʼязковою',
+      'string.min': 'Назва завдання має містити мінімум 1 символ',
+      'string.max': 'Назва завдання не може бути довшою за 96 символів',
     }),
+
+    date: Joi.string()
+      .pattern(/^\d{4}-\d{2}-\d{2}$/)
+      .required()
+      .messages({
+        'string.empty': 'Дата є обовʼязковою',
+        'any.required': 'Дата є обовʼязковою',
+        'string.pattern.base': 'Некоректний формат дати (YYYY-MM-DD)',
+      }),
+  }),
+};
+
+export const updateTaskStatusValidationSchema = {
+  [Segments.BODY]: Joi.object({
+    isDone: Joi.boolean().required().messages({
+      'boolean.base': 'Статус завдання має бути true або false',
+      'any.required': 'Статус завдання є обовʼязковим',
+    }),
+  }),
 };

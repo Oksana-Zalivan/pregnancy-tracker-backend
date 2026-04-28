@@ -59,7 +59,7 @@ export const createSession = async (userId) => {
     userId,
     accessToken,
     refreshToken,
-    accsesTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
+    accessTokenValidUntil: new Date(Date.now() + FIFTEEN_MINUTES),
     refreshTokenValidUntil: new Date(Date.now() + ONE_DAY),
   });
 };
