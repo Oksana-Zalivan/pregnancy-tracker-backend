@@ -1,10 +1,18 @@
-import express from "express";
-import { registerController } from "../controllers/authController.js";
-import { validateBody } from "../middlewares/validateBody.js";
-import { registerUserSchema } from "../validation/auth.js";
+import express from 'express';
+import { celebrate } from 'celebrate';
+
+import {
+  registerController,
+  loginUserController,
+  logoutUserController,
+} from '../controllers/authController.js';
+
+import { registerUserSchema, loginUserSchema } from '../validation/auth.js';
 
 const router = express.Router();
 
-router.post("/register", validateBody(registerUserSchema), registerController);
+router.post('/register', celebrate(registerUserSchema), registerController);
+router.post('/login', celebrate(loginUserSchema), loginUserController);
+router.post('/logout', logoutUserController);
 
 export default router;
