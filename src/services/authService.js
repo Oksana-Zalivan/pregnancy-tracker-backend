@@ -21,13 +21,14 @@ export const registerUser = async (payload) => {
 
 // This is the User Login logic
 export const loginUser = async (payload) => {
-  const user = await User.findOne({ email: payload.email });
+  const { email, password } = payload;
+  const user = await User.findOne({ email: email });
 
   if (!user) {
     throw new Error('Користувача з таким email чи паролем не існує!');
   }
 
-  const isValidPassword = await bcrypt.compare(payload.password, user.password);
+  const isValidPassword = await bcrypt.compare(password, user.password);
 
   if (!isValidPassword) {
     throw new Error('Користувача з таким email чи паролем не існує!');

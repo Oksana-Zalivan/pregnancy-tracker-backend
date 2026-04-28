@@ -1,11 +1,11 @@
 // Services
 import {
-  loginUser,
   registerUser,
+  loginUser,
   logoutUser,
+  createSession,
+  setSessionCookies,
 } from '../services/authService.js';
-// Imports
-import { createSession, setSessionCookies } from '../services/authService.js';
 
 // Register controller
 export const registerController = async (req, res, next) => {
@@ -32,7 +32,14 @@ export const loginUserController = async (req, res, next) => {
     const newSession = await createSession(user._id);
     setSessionCookies(res, newSession);
 
-    res.status(200).json({ user });
+    res.status(200).json({
+      message: 'Вхід успішний',
+      data: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
     next(error);
   }
