@@ -1,9 +1,9 @@
 import express from "express";
+import { getDiaries, createDiary } from "../controllers/diaryController.js";
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.json({ message: "Diaries endpoint works" });
-});
+router.get("/", getDiaries);
+router.post("/", createDiary);
 
 export default router;
