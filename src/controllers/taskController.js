@@ -1,6 +1,35 @@
 import { Task } from "../models/task.js";
 
-export const updateTaskStatus = async (req, res) => {
+export const getAllTasks = async (req, res, next) => {
+  try {
+    const tasks = await Task.find({ userId: req.user._id });
+
+    res.status(200).json({
+      message: "Завдання отримано",
+      data: tasks,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createTask = async (req, res, next) => {
+  try {
+    const task = await Task.create({
+      ...req.body,
+      userId: req.user._id,
+    });
+
+    res.status(201).json({
+      message: "Завдання створено",
+      data: task,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateTaskStatus = async (req, res, next) => {
   try {
     const { taskId } = req.params;
     const { isDone } = req.body;
@@ -8,15 +37,20 @@ export const updateTaskStatus = async (req, res) => {
     const updatedTask = await Task.findOneAndUpdate(
       { _id: taskId, userId: req.user._id },
       { isDone },
-      { returnDocument: "after" }
+      { new: true }
     );
 
     if (!updatedTask) {
-      return res.status(404).json({ message: "Task not found" });
+      return res.status(404).json({
+        message: "Task not found",
+      });
     }
 
-    res.json(updatedTask);
+    res.status(200).json({
+      message: "Статус оновлено",
+      data: updatedTask,
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    next(error);
   }
 };

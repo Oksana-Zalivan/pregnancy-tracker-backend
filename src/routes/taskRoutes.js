@@ -1,9 +1,29 @@
 import express from "express";
-import { authenticate } from "../middlewares/authenticate.js"; 
-import { updateTaskStatus } from "../controllers/taskController.js";
+import { celebrate } from "celebrate";
+import { authenticate } from "../middlewares/authenticate.js";
+import { createTaskValidationSchema } from "../validation/auth.js";
 
-const router = express.Router();
+import {
+  createTask,
+  getAllTasks,
+  updateTaskStatus,
+} from "../controllers/taskController.js";
 
-router.patch("/:taskId/status", authenticate, updateTaskStatus);
+const tasksRouter = express.Router();
 
-export default router;
+tasksRouter.post(
+  "/",
+  authenticate,
+  celebrate(createTaskValidationSchema),
+  createTask
+);
+
+tasksRouter.get("/", authenticate, getAllTasks);
+
+tasksRouter.patch(
+  "/:taskId/status",
+  authenticate,
+  updateTaskStatus
+);
+
+export default tasksRouter;
