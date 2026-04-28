@@ -1,10 +1,9 @@
-// Lib
-import bcrypt from 'bcrypt';
 // Services
-import { loginUser } from '../services/authService.js';
-import { registerUser } from '../services/authService.js';
-// Models
-import { Session } from '../models/session.js';
+import {
+  loginUser,
+  registerUser,
+  logoutUser,
+} from '../services/authService.js';
 // Imports
 import { createSession, setSessionCookies } from '../services/authService.js';
 
@@ -30,6 +29,8 @@ export const registerController = async (req, res, next) => {
 export const loginUserController = async (req, res, next) => {
   try {
     const user = await loginUser(req.body);
+    const newSession = await createSession(user._id);
+    setSessionCookies(res, newSession);
 
     res.status(200).json({ user });
   } catch (error) {

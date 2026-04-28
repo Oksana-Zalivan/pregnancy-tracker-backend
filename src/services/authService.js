@@ -1,9 +1,10 @@
 // Lib
 import crypto from 'crypto';
+import bcrypt from 'bcrypt';
 // Imports
 import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time.js';
 // Models
-import { User } from '../models/User.js';
+import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
 
 export const registerUser = async (payload) => {
@@ -32,11 +33,16 @@ export const loginUser = async (payload) => {
     throw new Error('Користувача з таким email чи паролем не існує!');
   }
 
+  await Session.deleteOne({ userId: user._id });
+
   return user;
 };
 
 // This is the user Logout logic
 export const logoutUser = async (cookies) => {
+  if (!cookies?.sessionId) {
+    return;
+  }
   await Session.deleteOne({ _id: cookies.sessionId });
 };
 
