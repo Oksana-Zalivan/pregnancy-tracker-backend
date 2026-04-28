@@ -7,17 +7,17 @@ const taskSchema = new mongoose.Schema(
       required: true,
       maxlength: 96,
     },
-    
+
     date: {
       type: Date,
       required: true,
     },
-    
+
     isDone: {
       type: Boolean,
       default: false,
     },
-    
+
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
@@ -29,3 +29,4 @@ const taskSchema = new mongoose.Schema(
   }
 );
 
+export const Task = mongoose.model("Task", taskSchema);
