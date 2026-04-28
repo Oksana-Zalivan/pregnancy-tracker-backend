@@ -2,7 +2,7 @@ import Diary from "../models/Diary.js";
 
 export const getDiaries = async (req, res) => {
   try {
-    const diaries = await Diary.find().sort({ date: -1 });
+    const diaries = await Diary.find({ userId: req.user._id }).sort({ date: -1 });
     res.json(diaries);
   } catch (error) {
     res.status(500).json({ error: "Server error" });
@@ -18,6 +18,7 @@ export const createDiary = async (req, res) => {
       description,
       date,
       emotions,
+      userId: req.user._id,
     });
 
     res.status(201).json(diary);
