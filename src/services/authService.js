@@ -1,11 +1,9 @@
-// Lib
-import crypto from 'crypto';
 import bcrypt from 'bcrypt';
-// Imports
+import crypto from 'crypto';
 import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time.js';
-// Models
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
+
 
 export const registerUser = async (payload) => {
   const existingUser = await User.findOne({ email: payload.email });
@@ -14,7 +12,12 @@ export const registerUser = async (payload) => {
     throw new Error('Користувач з таким email вже існує');
   }
 
-  const user = await User.create(payload);
+  const hashedPassword = await bcrypt.hash(payload.password, 10);
+
+  const user = await User.create({
+    ...payload,
+    password: hashedPassword,
+  });
 
   return user;
 };

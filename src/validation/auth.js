@@ -48,3 +48,24 @@ export const loginUserSchema = {
     }),
   }),
 };
+
+export const updateUserSchema = Joi.object({
+  name: Joi.string().max(32).messages({
+    "string.max": "Ім'я не може бути довшим за 32 символи",
+  }),
+
+  email: Joi.string().email().max(64).messages({
+    "string.email": "Некоректний формат email",
+    "string.max": "Email не може бути довшим за 64 символи",
+  }),
+
+  gender: Joi.string().valid("boy", "girl").allow(null),
+
+  dueDate: Joi.string()
+    .pattern(/^\d{4}-\d{2}-\d{2}$/)
+    .allow(null)
+    .messages({
+      "string.pattern.base": "Некоректний формат дати (YYYY-MM-DD)",
+    }),
+}).min(1);
+
