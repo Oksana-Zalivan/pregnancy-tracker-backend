@@ -13,8 +13,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@joi/date": "^2.1.1",
     "axios": "^1.15.2",
     "bcrypt": "^6.0.0",
+    "celebrate": "^15.0.3",
     "cloudinary": "^2.9.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",

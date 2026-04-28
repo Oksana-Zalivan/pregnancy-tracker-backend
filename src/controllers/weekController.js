@@ -8,9 +8,9 @@ export const getBabyByWeek = async (req, res, next) => {
   try {
     const weekNumber = Number(req.params.weekNumber);
 
-    if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 39) {
+    if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 40) {
       return res.status(400).json({
-        message: "Номер тижня має бути цілим числом від 1 до 39 ",
+        message: "Номер тижня має бути цілим числом від 1 до 40 ",
       });
     }
 
@@ -32,9 +32,9 @@ export const getMomBodyByWeek = async (req, res, next) => {
   try {
     const weekNumber = Number(req.params.weekNumber);
 
-    if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 39) {
+    if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 40) {
       return res.status(400).json({
-        message: "Номер тижня має бути цілим числом від 1 до 39",
+        message: "Номер тижня має бути цілим числом від 1 до 40",
       });
     }
 
@@ -64,8 +64,8 @@ export const getPublicCurrentWeek = async (req, res, next) => {
         .json({ message: "Дані початкового тижня не знайдено" });
     }
 
-    // Розрахунок днів згідно ТЗ: не більше 39 тижнів у днях
-    const daysUntilBirth = 39 * 7;
+    // Розрахунок днів згідно ТЗ: не більше 40 тижнів у днях
+    const daysUntilBirth = 40 * 7;
 
     // Формуємо відповідь згідно з потребами DashboardPage
     return res.status(200).json({
@@ -119,7 +119,7 @@ export const getPrivateCurrentWeek = async (req, res, next) => {
     }
 
     // Розраховуємо поточний тиждень вагітності
-    const weekNumber = Math.floor(passedDays / 7) + 1;
+    let weekNumber = Math.floor(passedDays / 7) + 1;
 
     // Захист від виходу за межі
     if (weekNumber < 1) weekNumber = 1;
@@ -131,7 +131,7 @@ export const getPrivateCurrentWeek = async (req, res, next) => {
 
     if (!baby || !mom) {
       return res.status(404).json({
-        message: "Дані для поточного тижня не знайдено",
+        message: `Дані для ${weekNumber} тижня не знайдено`,
       });
     }
 
