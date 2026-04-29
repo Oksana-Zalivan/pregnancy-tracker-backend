@@ -25,7 +25,7 @@ export const setupServer = () => {
 
   app.use("/api/auth", authRouter);
   app.use("/api/users", usersRouter);
-  app.use("/api/tasks", tasksRouter);
+  app.use("/api/tasks", tasksRouter); 
   app.use("/api/diaries", diariesRouter);
   app.use("/api/weeks", weekRouter);
 
