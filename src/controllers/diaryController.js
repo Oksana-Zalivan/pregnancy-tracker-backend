@@ -70,17 +70,15 @@ export const deleteDiaryController = async (req, res, next) => {
       userId: req.user._id,
     });
 
-    if (!diary) {
-      return res.status(404).json({
-        message: 'Запис щоденника не знайдено',
-      });
+    if (!deletedDiary) {
+      return res.status(404).json({ message: 'Запис не знайдено' });
     }
 
-    res.status(200).json({
-      message: 'Запис щоденника видалено',
-      data: diary,
+    res.json({
+      message: 'Запис видалено',
+      data: deletedDiary,
     });
   } catch (error) {
-    next(error);
+    res.status(500).json({ error: 'Server error' });
   }
 };
