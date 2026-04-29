@@ -87,3 +87,23 @@ export const setSessionCookies = (res, session) => {
     maxAge: ONE_DAY,
   });
 };
+export const refreshToken = async (cookies) => {
+  const session = await Session.findOne({
+    _id: cookies.sessionId,
+    refreshToken: cookies.refreshToken,
+  });
+
+  if (!session) {
+    throw new Error('Сесію не знайдено');
+  }
+
+  const isExpired = new Date() > new Date(session.refreshTokenValidUntil);
+
+  if (isExpired) {
+    throw new Error('Час дії токену сплив');
+  }
+
+  await Session.deleteOne({ _id: cookies.sessionId });
+
+  return createSession(session.userId);
+};

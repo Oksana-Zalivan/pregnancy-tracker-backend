@@ -5,6 +5,7 @@ import {
   logoutUser,
   createSession,
   setSessionCookies,
+  refreshToken,
 } from '../services/authService.js';
 
 // Register controller
@@ -72,5 +73,17 @@ export const logoutUserController = async (req, res, next) => {
     res.status(204).send();
   } catch (error) {
     next(error);
+  }
+};
+
+export const refreshTokenController = async (req, res, next) => {
+  try {
+    const newSession = await refreshToken(req.cookies);
+
+    setSessionCookies(res, newSession);
+
+    res.json({ message: 'ok' });
+  } catch (err) {
+    next(err);
   }
 };
