@@ -27,8 +27,27 @@ export const registerUserSchema = {
     dueDate: Joi.string()
       .pattern(/^\d{4}-\d{2}-\d{2}$/)
       .allow(null)
+      .custom((value, helpers) => {
+        if (!value) return value;
+
+        const inputDate = new Date(value);
+        const today = new Date();
+
+        const minDate = new Date();
+        minDate.setDate(today.getDate() + 7);
+
+        const maxDate = new Date();
+        maxDate.setDate(today.getDate() + 280);
+
+        if (inputDate < minDate || inputDate > maxDate) {
+          return helpers.error('date.range');
+        }
+
+        return value;
+      })
       .messages({
         'string.pattern.base': 'Некоректний формат дати (YYYY-MM-DD)',
+        'date.range': 'Дата має бути від +1 тижня до +40 тижнів від сьогодні',
       }),
   }),
 };
@@ -67,8 +86,27 @@ export const updateUserSchema = {
     dueDate: Joi.string()
       .pattern(/^\d{4}-\d{2}-\d{2}$/)
       .allow(null)
+      .custom((value, helpers) => {
+        if (!value) return value;
+
+        const inputDate = new Date(value);
+        const today = new Date();
+
+        const minDate = new Date();
+        minDate.setDate(today.getDate() + 7);
+
+        const maxDate = new Date();
+        maxDate.setDate(today.getDate() + 280);
+
+        if (inputDate < minDate || inputDate > maxDate) {
+          return helpers.error('date.range');
+        }
+
+        return value;
+      })
       .messages({
         'string.pattern.base': 'Некоректний формат дати (YYYY-MM-DD)',
+        'date.range': 'Дата має бути від +1 тижня до +40 тижнів від сьогодні',
       }),
   }).min(1),
 };
