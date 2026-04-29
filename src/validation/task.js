@@ -12,10 +12,22 @@ export const createTaskValidationSchema = {
     date: Joi.string()
       .pattern(/^\d{4}-\d{2}-\d{2}$/)
       .required()
+      .custom((value, helpers) => {
+        const inputDate = new Date(value);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        if (inputDate < today) {
+          return helpers.error('date.min');
+        }
+
+        return value;
+      })
       .messages({
         'string.empty': 'Дата є обовʼязковою',
         'any.required': 'Дата є обовʼязковою',
         'string.pattern.base': 'Некоректний формат дати (YYYY-MM-DD)',
+        'date.min': 'Дата не може бути в минулому',
       }),
   }),
 };

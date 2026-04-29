@@ -11,9 +11,14 @@ import { createDiarySchema } from "../validation/diary.js";
 
 const router = express.Router();
 
-router.get("/", authenticate, getDiaries);
-router.post("/", authenticate, celebrate(createDiarySchema), createDiary);
-router.patch('/:id', authenticate, updateDiary);
-router.delete('/:id', authenticate, deleteDiary);
+router.get('/', authenticate, getDiaries);
+router.post('/', authenticate, celebrate(createDiarySchema), createDiary);
+router.patch(
+  '/:id',
+  authenticate,
+  celebrate(createDiarySchema),
+  updateDiaryController,
+);
+router.delete('/:id', authenticate, deleteDiaryController);
 
 export default router;
