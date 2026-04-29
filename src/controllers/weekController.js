@@ -10,7 +10,7 @@ export const getBabyByWeek = async (req, res, next) => {
 
     if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 40) {
       return res.status(400).json({
-        message: "Номер тижня має бути цілим числом від 1 до 40 ",
+        message: "Номер тижня має бути цілим числом від 1 до 40",
       });
     }
 

@@ -13,6 +13,9 @@ export const registerController = async (req, res, next) => {
   try {
     const user = await registerUser(req.body);
 
+    const newSession = await createSession(user._id);
+    setSessionCookies(res, newSession);
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '24h',
     });
