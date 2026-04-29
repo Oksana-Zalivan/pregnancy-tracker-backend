@@ -26,3 +26,48 @@ export const createDiary = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
+
+export const updateDiary = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const updatedDiary = await Diary.findOneAndUpdate(
+      { _id: id, userId: req.user._id },
+      req.body,
+      { new: true },
+    );
+
+    if (!updatedDiary) {
+      return res.status(404).json({ message: 'Запис не знайдено' });
+    }
+
+    res.json({
+      message: 'Запис оновлено',
+      data: updatedDiary,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+export const deleteDiary = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedDiary = await Diary.findOneAndDelete({
+      _id: id,
+      userId: req.user._id,
+    });
+
+    if (!deletedDiary) {
+      return res.status(404).json({ message: 'Запис не знайдено' });
+    }
+
+    res.json({
+      message: 'Запис видалено',
+      data: deletedDiary,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
