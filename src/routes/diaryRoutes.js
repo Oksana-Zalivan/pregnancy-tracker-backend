@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get('/', authenticate, getDiaries);
 router.post('/', authenticate, celebrate(createDiarySchema), createDiary);
-router.patch('/:id', authenticate, updateDiary);
+router.patch('/:id', authenticate, celebrate(createDiarySchema), updateDiary);
 router.delete('/:id', authenticate, deleteDiary);
 
 export default router;

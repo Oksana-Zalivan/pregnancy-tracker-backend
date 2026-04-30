@@ -2,7 +2,7 @@ import { Task } from "../models/task.js";
 
 export const getAllTasks = async (req, res, next) => {
   try {
-    const tasks = await Task.find({ userId: req.user._id });
+    const tasks = await Task.find({ userId: req.user._id }).sort({ date: 1 });
 
     res.status(200).json({
       message: "Завдання отримано",

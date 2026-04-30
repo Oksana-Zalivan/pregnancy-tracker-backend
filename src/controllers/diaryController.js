@@ -1,15 +1,21 @@
-import Diary from "../models/Diary.js";
+import Diary from '../models/diary.js';
 
-export const getDiaries = async (req, res) => {
+export const getDiaries = async (req, res, next) => {
   try {
-    const diaries = await Diary.find({ userId: req.user._id }).sort({ date: -1 });
-    res.json(diaries);
+    const diaries = await Diary.find({ userId: req.user._id }).sort({
+      date: -1,
+    });
+
+    res.status(200).json({
+      message: 'Записи щоденника отримано',
+      data: diaries,
+    });
   } catch (error) {
-    res.status(500).json({ error: "Server error" });
+    next(error);
   }
 };
 
-export const createDiary = async (req, res) => {
+export const createDiary = async (req, res, next) => {
   try {
     const { title, description, date, emotions } = req.body;
 
@@ -21,40 +27,45 @@ export const createDiary = async (req, res) => {
       userId: req.user._id,
     });
 
-    res.status(201).json(diary);
-  } catch (error) {
-    res.status(500).json({ error: "Server error" });
-  }
-};
-
-export const updateDiary = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const updatedDiary = await Diary.findOneAndUpdate(
-      { _id: id, userId: req.user._id },
-      req.body,
-      { new: true },
-    );
-
-    if (!updatedDiary) {
-      return res.status(404).json({ message: 'Запис не знайдено' });
-    }
-
-    res.json({
-      message: 'Запис оновлено',
-      data: updatedDiary,
+    res.status(201).json({
+      message: 'Запис щоденника створено',
+      data: diary,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    next(error);
   }
 };
 
-export const deleteDiary = async (req, res) => {
+export const updateDiaryController = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const deletedDiary = await Diary.findOneAndDelete({
+    const diary = await Diary.findOneAndUpdate(
+      { _id: id, userId: req.user._id },
+      req.body,
+      { new: true, runValidators: true },
+    );
+
+    if (!diary) {
+      return res.status(404).json({
+        message: 'Запис щоденника не знайдено',
+      });
+    }
+
+    res.status(200).json({
+      message: 'Запис щоденника оновлено',
+      data: diary,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteDiaryController = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const diary = await Diary.findOneAndDelete({
       _id: id,
       userId: req.user._id,
     });
