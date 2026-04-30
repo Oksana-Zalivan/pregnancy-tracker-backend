@@ -1,5 +1,6 @@
 import Diary from '../models/diary.js';
 
+// GET
 export const getDiaries = async (req, res, next) => {
   try {
     const diaries = await Diary.find({ userId: req.user._id }).sort({
@@ -15,6 +16,7 @@ export const getDiaries = async (req, res, next) => {
   }
 };
 
+// POST
 export const createDiary = async (req, res, next) => {
   try {
     const { title, description, date, emotions } = req.body;
@@ -36,7 +38,8 @@ export const createDiary = async (req, res, next) => {
   }
 };
 
-export const updateDiaryController = async (req, res, next) => {
+// PATCH
+export const updateDiary = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -61,7 +64,8 @@ export const updateDiaryController = async (req, res, next) => {
   }
 };
 
-export const deleteDiaryController = async (req, res, next) => {
+// DELETE
+export const deleteDiary = async (req, res, next) => {
   try {
     const { id } = req.params;
 
@@ -70,15 +74,17 @@ export const deleteDiaryController = async (req, res, next) => {
       userId: req.user._id,
     });
 
-    if (!deletedDiary) {
-      return res.status(404).json({ message: 'Запис не знайдено' });
+    if (!diary) {
+      return res.status(404).json({
+        message: 'Запис не знайдено',
+      });
     }
 
-    res.json({
+    res.status(200).json({
       message: 'Запис видалено',
-      data: deletedDiary,
+      data: diary,
     });
   } catch (error) {
-    res.status(500).json({ error: 'Server error' });
+    next(error);
   }
 };
