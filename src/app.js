@@ -10,8 +10,14 @@ import { errorHandler } from "./middlewares/errorHandler.js";
 export const setupServer = () => {
   const app = express();
 
-  app.use(cors());
+  app.use(
+    cors({
+      origin: process.env.FRONTEND_DOMAIN,
+      credentials: true,
+    })
+  );
   app.use(express.json());
+  app.use(cookieParser());
 
   app.get("/", (req, res) => {
     res.json({
