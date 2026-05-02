@@ -17,7 +17,7 @@ export const setupServer = () => {
     cors({
       origin: process.env.FRONTEND_DOMAIN,
       credentials: true,
-    }),
+    })
   );
   app.use(express.json());
   app.use(cookieParser());

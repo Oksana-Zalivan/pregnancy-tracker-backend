@@ -110,3 +110,4 @@ export const updateUserSchema = {
       }),
   }).min(1),
 };
+

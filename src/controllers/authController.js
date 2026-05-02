@@ -8,7 +8,6 @@ import {
   refreshToken,
 } from '../services/authService.js';
 
-// Register controller
 export const registerController = async (req, res, next) => {
   try {
     const user = await registerUser(req.body);
@@ -36,7 +35,6 @@ export const registerController = async (req, res, next) => {
   }
 };
 
-// Login controller
 export const loginUserController = async (req, res, next) => {
   try {
     const user = await loginUser(req.body);
@@ -64,7 +62,6 @@ export const loginUserController = async (req, res, next) => {
   }
 };
 
-// Logout controller
 export const logoutUserController = async (req, res, next) => {
   try {
     await logoutUser(req.cookies);

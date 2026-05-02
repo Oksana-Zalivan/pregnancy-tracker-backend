@@ -4,7 +4,6 @@ import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time.js';
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
 
-
 export const registerUser = async (payload) => {
   const existingUser = await User.findOne({ email: payload.email });
 
