@@ -1,5 +1,7 @@
-import * as weekService from "../services/weekService.js"
-
+import {
+  getBabyByWeekNumber,
+  getMomBodyByWeekNumber,
+} from "../services/weekService.js";
 
 export const getBabyByWeek = async (req, res, next) => {
   try {
@@ -47,10 +49,11 @@ export const getMomBodyByWeek = async (req, res, next) => {
     next(error);
   }
 };
+
 export const getPublicCurrentWeek = async (req, res, next) => {
   try {
-    // Для незареєстрованого користувача завжди 1-й тиждень 
-    const weekNumber = 1; 
+    // Для незареєстрованого користувача завжди 1-й тиждень
+    const weekNumber = 1;
 
     const [baby, mom] = await Promise.all([
       weekService.getBabyByWeekNumber(weekNumber),
@@ -58,13 +61,13 @@ export const getPublicCurrentWeek = async (req, res, next) => {
     ]);
 
     if (!baby || !mom) {
-      return res.status(404).json({ message: "Дані початкового тижня не знайдено" });
+      return res
+        .status(404)
+        .json({ message: "Дані початкового тижня не знайдено" });
     }
 
-    // Розрахунок днів згідно ТЗ: не більше 40 тижнів у днях 
     const daysUntilBirth = 40 * 7; 
 
-    // Формуємо відповідь згідно з потребами DashboardPage 
     return res.status(200).json({
       weekNumber,
       daysUntilBirth,
@@ -76,35 +79,58 @@ export const getPublicCurrentWeek = async (req, res, next) => {
         activity: baby.babyActivity,
         development: baby.babyDevelopment,
       },
-      // Поради в ТЗ щоденні, для 1-го тижня повертаємо першу 
-      momTip: baby.momDailyTips[0] 
+      // Поради в ТЗ щоденні, для 1-го тижня повертаємо першу
+      momTip: baby.momDailyTips[0] ?? null,
     });
   } catch (error) {
     next(error);
   }
 };
 
-export const getCurrentBaby = async (req, res, next) => {
+export const getPrivateCurrentWeek = async (req, res, next) => {
   try {
-    const dueDate = req.user?.dueDate;
+    const userId = req.user;
+    
+    if (!user) {
+      return res.status(404).json({
+        message: "Користувача не знайдено",
+      });
+    }
 
-    // ПОПРАВКА: Розраховуємо тиждень динамічно від dueDate
-    const weekNumber = weekService.calculateCurrentWeek(dueDate) || 
-                       Number(req.user?.weekNumber || req.query.week || 1);
+    const today = new Date();
 
-    // Стабільний індекс дня (змінюється раз на добу)
-    const currentDayIndex = Math.floor(Date.now() / MS_IN_DAY);
+    let daysUntilBirth = 280;
+    let passedDays = 0;
 
-    const [baby, mom] = await Promise.all([
+    if (user.dueDate) {
+      const dueDate = new Date(user.dueDate);
+      daysUntilBirth = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+      // Розраховуємо, скільки днів вже пройшло від початку вагітності
+      passedDays = 280 - daysUntilBirth;
+    } 
+    
+    let weekNumber = Math.floor(passedDays / 7) + 1;
+
+        if (weekNumber < 1) weekNumber = 1;
+    if (weekNumber > 40) weekNumber = 40;
+
+    if (daysUntilBirth < 0) daysUntilBirth = 0;
+    
+     const [baby, mom] = await Promise.all([
       getBabyByWeekNumber(weekNumber),
-      getMomBodyByWeekNumber(weekNumber)
+      getMomBodyByWeekNumber(weekNumber),
     ]);
 
-    if (!baby || !mom) return res.status(404).json({ message: "Дані не знайдено" });
+    if (!baby || !mom) {
+      return res.status(404).json({
+        message: `Дані для ${weekNumber} тижня не знайдено`,
+      });
+    }
 
+    // Формуємо відповідь згідно з потребами DashboardPage
     return res.status(200).json({
       weekNumber,
-      daysUntilBirth: weekService.calculateDaysToBirth(weekNumber, dueDate),
+      daysUntilBirth,
       baby: {
         analogy: baby.analogy,
         size: baby.babySize,
@@ -113,11 +139,10 @@ export const getCurrentBaby = async (req, res, next) => {
         activity: baby.babyActivity,
         development: baby.babyDevelopment,
       },
-      mom: {
-        reccomendation: mom.feelings.sensationDescr,
-        // СЛОВА МЕНТОРА: Щоденна порада (вибір через індекс дня)
-        dailyTip: baby.momDailyTips[currentDayIndex % baby.momDailyTips.length]
-      }
+      momTip: baby.momDailyTips?.[0] ?? null,
     });
-  } catch (error) { next(error); }
+  } catch (error) {
+    next(error);
+  }
 };
+

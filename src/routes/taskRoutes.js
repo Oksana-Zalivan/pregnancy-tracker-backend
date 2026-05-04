@@ -1,9 +1,30 @@
 import express from "express";
+import { celebrate } from "celebrate";
+import { authenticate } from "../middlewares/authenticate.js";
+import { createTaskValidationSchema, updateTaskStatusValidationSchema, } from "../validation/task.js";
 
-const router = express.Router();
+import {
+  createTask,
+  getAllTasks,
+  updateTaskStatus,
+} from "../controllers/taskController.js";
 
-router.get("/", (req, res) => {
-  res.json({ message: "Tasks endpoint works" });
-});
+const tasksRouter = express.Router();
 
-export default router;
+tasksRouter.post(
+  "/",
+  authenticate,
+  celebrate(createTaskValidationSchema),
+  createTask
+);
+
+tasksRouter.get("/", authenticate, getAllTasks);
+
+tasksRouter.patch(
+  "/:taskId/status",
+  authenticate,
+  celebrate(updateTaskStatusValidationSchema),
+  updateTaskStatus
+);
+
+export default tasksRouter;
