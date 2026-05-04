@@ -17,7 +17,7 @@ export const getEmotion = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const emotion = await Emotion.findOne({ id }).lean();
+    const emotion = await Emotion.findById(id).lean();
 
     if (!emotion) {
       return res.status(404).json({
