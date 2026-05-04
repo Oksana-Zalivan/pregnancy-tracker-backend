@@ -2,7 +2,6 @@ import {
   getBabyByWeekNumber,
   getMomBodyByWeekNumber,
 } from "../services/weekService.js";
-import { User } from "../models/user.js";
 
 export const getBabyByWeek = async (req, res, next) => {
   try {
@@ -10,7 +9,7 @@ export const getBabyByWeek = async (req, res, next) => {
 
     if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 40) {
       return res.status(400).json({
-        message: "Номер тижня має бути цілим числом від 1 до 40",
+        message: "Номер тижня має бути цілим числом від 1 до 40 ",
       });
     }
 
@@ -50,13 +49,16 @@ export const getMomBodyByWeek = async (req, res, next) => {
     next(error);
   }
 };
+
 export const getPublicCurrentWeek = async (req, res, next) => {
   try {
     // Для незареєстрованого користувача завжди 1-й тиждень
     const weekNumber = 1;
 
-    const baby = await getBabyByWeekNumber(weekNumber);
-    const mom = await getMomBodyByWeekNumber(weekNumber);
+    const [baby, mom] = await Promise.all([
+      weekService.getBabyByWeekNumber(weekNumber),
+      weekService.getMomBodyByWeekNumber(weekNumber)
+    ]);
 
     if (!baby || !mom) {
       return res
@@ -64,10 +66,8 @@ export const getPublicCurrentWeek = async (req, res, next) => {
         .json({ message: "Дані початкового тижня не знайдено" });
     }
 
-    // Розрахунок днів згідно ТЗ: не більше 40 тижнів у днях
-    const daysUntilBirth = 40 * 7;
+    const daysUntilBirth = 40 * 7; 
 
-    // Формуємо відповідь згідно з потребами DashboardPage
     return res.status(200).json({
       weekNumber,
       daysUntilBirth,
@@ -80,7 +80,7 @@ export const getPublicCurrentWeek = async (req, res, next) => {
         development: baby.babyDevelopment,
       },
       // Поради в ТЗ щоденні, для 1-го тижня повертаємо першу
-      momTip: baby.momDailyTips[0],
+      momTip: baby.momDailyTips[0] ?? null,
     });
   } catch (error) {
     next(error);
@@ -89,45 +89,37 @@ export const getPublicCurrentWeek = async (req, res, next) => {
 
 export const getPrivateCurrentWeek = async (req, res, next) => {
   try {
-    // Для приватного маршруту потрібна авторизація, тому отримуємо userId з токена
-    const userId = req.user._id;
-    // Знаходимо користувача в базі даних за userId, щоб отримати дату початку вагітності
-    const user = await User.findById(userId);
-
-    // Якщо користувача немає, повертаємо помилку
+    const userId = req.user;
+    
     if (!user) {
       return res.status(404).json({
         message: "Користувача не знайдено",
       });
     }
 
-    // Розраховуємо скільки днів залишилось до народження, на основі дати пологів та поточної дати
     const today = new Date();
 
-    let daysUntilBirth;
-    let passedDays;
+    let daysUntilBirth = 280;
+    let passedDays = 0;
 
     if (user.dueDate) {
       const dueDate = new Date(user.dueDate);
       daysUntilBirth = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
       // Розраховуємо, скільки днів вже пройшло від початку вагітності
       passedDays = 280 - daysUntilBirth;
-    } else {
-      // Якщо дата пологів не вказана, вважаємо, що це 1-й тиждень вагітності
-      passedDays = 0;
-      daysUntilBirth = 280;
-    }
-
-    // Розраховуємо поточний тиждень вагітності
+    } 
+    
     let weekNumber = Math.floor(passedDays / 7) + 1;
 
-    // Захист від виходу за межі
-    if (weekNumber < 1) weekNumber = 1;
+        if (weekNumber < 1) weekNumber = 1;
     if (weekNumber > 40) weekNumber = 40;
 
-    // Отримуємо дані про дитину та маму для поточного тижня
-    const baby = await getBabyByWeekNumber(weekNumber);
-    const mom = await getMomBodyByWeekNumber(weekNumber);
+    if (daysUntilBirth < 0) daysUntilBirth = 0;
+    
+     const [baby, mom] = await Promise.all([
+      getBabyByWeekNumber(weekNumber),
+      getMomBodyByWeekNumber(weekNumber),
+    ]);
 
     if (!baby || !mom) {
       return res.status(404).json({
@@ -139,7 +131,6 @@ export const getPrivateCurrentWeek = async (req, res, next) => {
     return res.status(200).json({
       weekNumber,
       daysUntilBirth,
-
       baby: {
         analogy: baby.analogy,
         size: baby.babySize,
@@ -154,3 +145,4 @@ export const getPrivateCurrentWeek = async (req, res, next) => {
     next(error);
   }
 };
+
