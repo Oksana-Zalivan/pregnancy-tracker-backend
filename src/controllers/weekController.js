@@ -11,7 +11,7 @@ export const getBabyByWeek = async (req, res, next) => {
       });
     }
 
-    const week = await getBabyByWeekNumber(weekNumber);
+    const week = await weekService.getBabyByWeekNumber(weekNumber);
 
     if (!week) {
       return res.status(404).json({
@@ -35,7 +35,7 @@ export const getMomBodyByWeek = async (req, res, next) => {
       });
     }
 
-    const week = await getMomBodyByWeekNumber(weekNumber);
+    const week = await weekService.getMomBodyByWeekNumber(weekNumber);
     if (!week) {
       return res.status(404).json({
         message: `Дані мами за тиждень ${weekNumber} не знайдено`,
@@ -54,7 +54,7 @@ export const getPublicCurrentWeek = async (req, res, next) => {
 
     const [baby, mom] = await Promise.all([
       weekService.getBabyByWeekNumber(weekNumber),
-      weekService.getMomBodyByWeekNumber(weekNumber)
+      weekService.getMomBodyByWeekNumber(weekNumber),
     ]);
 
     if (!baby || !mom) {
