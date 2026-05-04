@@ -9,6 +9,7 @@ import tasksRouter from './routes/taskRoutes.js';
 import diariesRouter from './routes/diaryRoutes.js';
 import weekRouter from './routes/weekRoutes.js';
 import { errorHandler } from './middlewares/errorHandler.js';
+import emotionRouter from './routes/emotionRoutes.js';
 
 export const setupServer = () => {
   const app = express();
@@ -33,6 +34,7 @@ export const setupServer = () => {
   app.use("/api/tasks", tasksRouter); 
   app.use("/api/diaries", diariesRouter);
   app.use("/api/weeks", weekRouter);
+  app.use('/api/emotions', emotionRouter);
 
   app.use(errors());
   app.use(errorHandler);
