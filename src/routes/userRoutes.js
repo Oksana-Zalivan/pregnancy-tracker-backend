@@ -16,7 +16,7 @@ const router = express.Router();
 router.get('/current', authenticate, getCurrentUserController);
 
 router.patch(
-  '/',
+  '/profile',
   authenticate,
   celebrate(updateUserSchema),
   updateUserProfileController,

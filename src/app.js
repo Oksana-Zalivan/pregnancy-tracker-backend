@@ -34,7 +34,7 @@ export const setupServer = () => {
   app.use("/api/tasks", tasksRouter); 
   app.use("/api/diaries", diariesRouter);
   app.use("/api/weeks", weekRouter);
-  app.use('/api/emotions', emotionRouter);
+  app.use('/api/emotion', emotionRouter);
 
   app.use(errors());
   app.use(errorHandler);
