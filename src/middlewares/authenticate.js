@@ -1,34 +1,43 @@
-import jwt from "jsonwebtoken";
-import { User } from "../models/user.js";
+import createHttpError from 'http-errors';
+
+import { Session } from '../models/session.js';
+import { User } from '../models/user.js';
 
 export const authenticate = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
+    const { sessionId, accessToken } = req.cookies;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return res.status(401).json({
-        message: "Користувач не авторизований",
-      });
+    if (!sessionId || !accessToken) {
+      throw createHttpError(401, 'Користувач не авторизований');
     }
 
-    const token = authHeader.split(" ")[1];
+    const session = await Session.findOne({
+      _id: sessionId,
+      accessToken,
+    });
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!session) {
+      throw createHttpError(401, 'Користувач не авторизований');
+    }
 
-    const user = await User.findById(decoded.id);
+    const isAccessTokenExpired =
+      new Date() > new Date(session.accessTokenValidUntil);
+
+    if (isAccessTokenExpired) {
+      throw createHttpError(401, 'Час дії access token сплив');
+    }
+
+    const user = await User.findById(session.userId);
 
     if (!user) {
-      return res.status(401).json({
-        message: "Користувач не авторизований",
-      });
+      throw createHttpError(401, 'Користувач не авторизований');
     }
 
     req.user = user;
+    req.session = session;
 
     next();
   } catch (error) {
-    return res.status(401).json({
-      message: "Користувач не авторизований",
-    });
+    next(error);
   }
 };
