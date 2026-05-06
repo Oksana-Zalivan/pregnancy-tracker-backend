@@ -17,7 +17,7 @@ export const createDiarySchema = {
     }),
 
     emotions: Joi.array()
-      .items(Joi.string())
+      .items(Joi.string().hex().length(24))
       .min(1)
       .max(12)
       .required()

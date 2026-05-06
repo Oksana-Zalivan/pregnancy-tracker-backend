@@ -67,6 +67,7 @@ const getCookieOptions = (maxAge) => ({
   secure: process.env.NODE_ENV === 'production',
   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
   maxAge,
+  path: '/',
 });
 
 export const setSessionCookies = (res, session) => {
@@ -75,14 +76,18 @@ export const setSessionCookies = (res, session) => {
     session.accessToken,
     getCookieOptions(FIFTEEN_MINUTES),
   );
+
   res.cookie('refreshToken', session.refreshToken, getCookieOptions(ONE_DAY));
+
   res.cookie('sessionId', session._id.toString(), getCookieOptions(ONE_DAY));
 };
 
 export const clearSessionCookies = (res) => {
-  res.clearCookie('accessToken');
-  res.clearCookie('refreshToken');
-  res.clearCookie('sessionId');
+  const cookieOptions = getCookieOptions(0);
+
+  res.clearCookie('accessToken', cookieOptions);
+  res.clearCookie('refreshToken', cookieOptions);
+  res.clearCookie('sessionId', cookieOptions);
 };
 
 export const refreshUserSession = async (cookies) => {
@@ -105,6 +110,7 @@ export const refreshUserSession = async (cookies) => {
 
   if (isExpired) {
     await Session.deleteOne({ _id: sessionId });
+
     throw createHttpError(401, 'Час дії сесії сплив');
   }
 
