@@ -1,5 +1,7 @@
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import createHttpError from 'http-errors';
+
 import { FIFTEEN_MINUTES, ONE_DAY } from '../constants/time.js';
 import { User } from '../models/user.js';
 import { Session } from '../models/session.js';
@@ -8,53 +10,50 @@ export const registerUser = async (payload) => {
   const existingUser = await User.findOne({ email: payload.email });
 
   if (existingUser) {
-    throw new Error('Користувач з таким email вже існує');
+    throw createHttpError(409, 'Користувач з таким email вже існує');
   }
 
   const hashedPassword = await bcrypt.hash(payload.password, 10);
 
-  const user = await User.create({
+  return await User.create({
     ...payload,
     password: hashedPassword,
   });
-
-  return user;
 };
 
-// This is the User Login logic
 export const loginUser = async (payload) => {
   const { email, password } = payload;
-  const user = await User.findOne({ email: email });
+
+  const user = await User.findOne({ email });
 
   if (!user) {
-    throw new Error('Користувача з таким email чи паролем не існує!');
+    throw createHttpError(401, 'Невірний email або пароль');
   }
 
   const isValidPassword = await bcrypt.compare(password, user.password);
 
   if (!isValidPassword) {
-    throw new Error('Користувача з таким email чи паролем не існує!');
+    throw createHttpError(401, 'Невірний email або пароль');
   }
 
-  await Session.deleteOne({ userId: user._id });
+  await Session.deleteMany({ userId: user._id });
 
   return user;
 };
 
-// This is the user Logout logic
 export const logoutUser = async (cookies) => {
   if (!cookies?.sessionId) {
     return;
   }
+
   await Session.deleteOne({ _id: cookies.sessionId });
 };
 
-// This is the Session logic
 export const createSession = async (userId) => {
   const accessToken = crypto.randomBytes(30).toString('base64');
   const refreshToken = crypto.randomBytes(30).toString('base64');
 
-  return Session.create({
+  return await Session.create({
     userId,
     accessToken,
     refreshToken,
@@ -63,46 +62,53 @@ export const createSession = async (userId) => {
   });
 };
 
-// Session cookies
+const getCookieOptions = (maxAge) => ({
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  maxAge,
+});
+
 export const setSessionCookies = (res, session) => {
-  res.cookie('accessToken', session.accessToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    maxAge: FIFTEEN_MINUTES,
-  });
-
-  res.cookie('refreshToken', session.refreshToken, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    maxAge: ONE_DAY,
-  });
-
-  res.cookie('sessionId', session._id, {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'none',
-    maxAge: ONE_DAY,
-  });
+  res.cookie(
+    'accessToken',
+    session.accessToken,
+    getCookieOptions(FIFTEEN_MINUTES),
+  );
+  res.cookie('refreshToken', session.refreshToken, getCookieOptions(ONE_DAY));
+  res.cookie('sessionId', session._id.toString(), getCookieOptions(ONE_DAY));
 };
-export const refreshToken = async (cookies) => {
+
+export const clearSessionCookies = (res) => {
+  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken');
+  res.clearCookie('sessionId');
+};
+
+export const refreshUserSession = async (cookies) => {
+  const { sessionId, refreshToken } = cookies;
+
+  if (!sessionId || !refreshToken) {
+    throw createHttpError(401, 'Сесія відсутня');
+  }
+
   const session = await Session.findOne({
-    _id: cookies.sessionId,
-    refreshToken: cookies.refreshToken,
+    _id: sessionId,
+    refreshToken,
   });
 
   if (!session) {
-    throw new Error('Сесію не знайдено');
+    throw createHttpError(401, 'Сесію не знайдено');
   }
 
   const isExpired = new Date() > new Date(session.refreshTokenValidUntil);
 
   if (isExpired) {
-    throw new Error('Час дії токену сплив');
+    await Session.deleteOne({ _id: sessionId });
+    throw createHttpError(401, 'Час дії сесії сплив');
   }
 
-  await Session.deleteOne({ _id: cookies.sessionId });
+  await Session.deleteOne({ _id: sessionId });
 
-  return createSession(session.userId);
+  return await createSession(session.userId);
 };

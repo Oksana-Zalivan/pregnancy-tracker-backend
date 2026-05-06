@@ -2,7 +2,7 @@ import { Emotion } from '../models/emotion.js';
 
 export const getEmotions = async (req, res, next) => {
   try {
-    const emotions = await Emotion.find();
+    const emotions = await Emotion.find().lean();
 
     res.status(200).json({
       message: 'Емоції успішно отримані',
@@ -17,7 +17,7 @@ export const getEmotion = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const emotion = await Emotion.findById(id);
+    const emotion = await Emotion.findById(id).lean();
 
     if (!emotion) {
       return res.status(404).json({

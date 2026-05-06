@@ -1,3 +1,4 @@
+import createHttpError from 'http-errors';
 import { Session } from '../models/session.js';
 
 export const validateSession = async (req, res, next) => {
@@ -5,9 +6,7 @@ export const validateSession = async (req, res, next) => {
     const { sessionId, refreshToken } = req.cookies;
 
     if (!sessionId || !refreshToken) {
-      return res.status(401).json({
-        message: 'Сесія невалідна або відсутня',
-      });
+      throw createHttpError(401, 'Сесія відсутня');
     }
 
     const session = await Session.findOne({
@@ -16,24 +15,18 @@ export const validateSession = async (req, res, next) => {
     });
 
     if (!session) {
-      return res.status(401).json({
-        message: 'Сесія невалідна',
-      });
+      throw createHttpError(401, 'Сесія невалідна');
     }
 
     const isExpired = new Date() > new Date(session.refreshTokenValidUntil);
 
     if (isExpired) {
-      return res.status(401).json({
-        message: 'Час дії сесії сплив',
-      });
+      throw createHttpError(401, 'Час дії сесії сплив');
     }
 
     req.session = session;
     next();
   } catch (error) {
-    return res.status(401).json({
-      message: 'Сесія невалідна',
-    });
+    next(error);
   }
 };

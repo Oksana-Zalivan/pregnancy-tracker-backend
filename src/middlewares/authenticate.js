@@ -1,25 +1,32 @@
-import jwt from "jsonwebtoken";
-import { User } from "../models/user.js";
+import { Session } from '../models/session.js';
+import { User } from '../models/user.js';
 
 export const authenticate = async (req, res, next) => {
   try {
-    const authHeader = req.headers.authorization;
+    const { sessionId, refreshToken } = req.cookies;
 
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    if (!sessionId || !refreshToken) {
       return res.status(401).json({
-        message: "Користувач не авторизований",
+        message: 'Користувач не авторизований',
       });
     }
 
-    const token = authHeader.split(" ")[1];
+    const session = await Session.findOne({
+      _id: sessionId,
+      refreshToken,
+    });
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!session) {
+      return res.status(401).json({
+        message: 'Сесія невалідна',
+      });
+    }
 
-    const user = await User.findById(decoded.id);
+    const user = await User.findById(session.userId);
 
     if (!user) {
       return res.status(401).json({
-        message: "Користувач не авторизований",
+        message: 'Користувача не знайдено',
       });
     }
 
@@ -27,8 +34,6 @@ export const authenticate = async (req, res, next) => {
 
     next();
   } catch (error) {
-    return res.status(401).json({
-      message: "Користувач не авторизований",
-    });
+    next(error);
   }
 };
