@@ -7,13 +7,18 @@ dotenv.config();
 const PORT = process.env.PORT || 3001;
 
 const bootstrap = async () => {
-  await initMongoConnection();
+  try {
+    await initMongoConnection();
 
-  const app = setupServer();
+    const app = setupServer();
 
-  app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-  });
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Server failed to start:', error.message);
+    process.exit(1);
+  }
 };
 
 bootstrap();

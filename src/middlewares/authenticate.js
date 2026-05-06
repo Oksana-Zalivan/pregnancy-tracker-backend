@@ -22,6 +22,16 @@ export const authenticate = async (req, res, next) => {
       });
     }
 
+    const isExpired = new Date() > new Date(session.refreshTokenValidUntil);
+
+    if (isExpired) {
+      await Session.deleteOne({ _id: sessionId });
+
+      return res.status(401).json({
+        message: 'Сесія протермінована',
+      });
+    }
+
     const user = await User.findById(session.userId);
 
     if (!user) {

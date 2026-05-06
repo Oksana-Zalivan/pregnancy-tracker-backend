@@ -21,10 +21,13 @@ export const validateSession = async (req, res, next) => {
     const isExpired = new Date() > new Date(session.refreshTokenValidUntil);
 
     if (isExpired) {
+      await Session.deleteOne({ _id: sessionId });
+
       throw createHttpError(401, 'Час дії сесії сплив');
     }
 
     req.session = session;
+
     next();
   } catch (error) {
     next(error);

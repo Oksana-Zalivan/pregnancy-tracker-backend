@@ -25,7 +25,7 @@ const userSchema = new Schema(
     },
     gender: {
       type: String,
-      enum: ['boy', 'girl', null],
+      enum: ['boy', 'girl'],
       default: null,
     },
     dueDate: {
