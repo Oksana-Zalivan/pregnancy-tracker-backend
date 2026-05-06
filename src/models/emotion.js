@@ -2,17 +2,9 @@ import { model, Schema } from 'mongoose';
 
 const emotionSchema = new Schema(
   {
-    id: {
+    title: {
       type: String,
       required: true,
-    },
-    label: {
-      type: String,
-      required: true,
-    },
-    icon: {
-      type: String,
-      default: '',
     },
   },
   {
@@ -22,3 +14,4 @@ const emotionSchema = new Schema(
 );
 
 export const Emotion = model('Emotion', emotionSchema, 'emotions');
+
