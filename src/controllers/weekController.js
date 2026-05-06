@@ -56,8 +56,9 @@ export const getPublicCurrentWeek = async (req, res, next) => {
     const weekNumber = 1;
 
     const [baby, mom] = await Promise.all([
-      weekService.getBabyByWeekNumber(weekNumber),
-      weekService.getMomBodyByWeekNumber(weekNumber),
+      getBabyByWeekNumber(weekNumber),
+      getMomBodyByWeekNumber(weekNumber)
+
     ]);
 
     if (!baby || !mom) {
@@ -89,13 +90,13 @@ export const getPublicCurrentWeek = async (req, res, next) => {
 
 export const getPrivateCurrentWeek = async (req, res, next) => {
   try {
-    const userId = req.user;
-    
-    if (!user) {
-      return res.status(404).json({
-        message: "Користувача не знайдено",
+    if (!req.user) {
+      return res.status(401).json({
+        message: 'Користувач не авторизований',
       });
     }
+
+    const user = req.user;
 
     const today = new Date();
 
@@ -105,18 +106,17 @@ export const getPrivateCurrentWeek = async (req, res, next) => {
     if (user.dueDate) {
       const dueDate = new Date(user.dueDate);
       daysUntilBirth = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
-      // Розраховуємо, скільки днів вже пройшло від початку вагітності
       passedDays = 280 - daysUntilBirth;
-    } 
-    
+    }
+
     let weekNumber = Math.floor(passedDays / 7) + 1;
 
-        if (weekNumber < 1) weekNumber = 1;
+    if (weekNumber < 1) weekNumber = 1;
     if (weekNumber > 40) weekNumber = 40;
 
     if (daysUntilBirth < 0) daysUntilBirth = 0;
-    
-     const [baby, mom] = await Promise.all([
+
+    const [baby, mom] = await Promise.all([
       getBabyByWeekNumber(weekNumber),
       getMomBodyByWeekNumber(weekNumber),
     ]);
@@ -127,7 +127,6 @@ export const getPrivateCurrentWeek = async (req, res, next) => {
       });
     }
 
-    // Формуємо відповідь згідно з потребами DashboardPage
     return res.status(200).json({
       weekNumber,
       daysUntilBirth,

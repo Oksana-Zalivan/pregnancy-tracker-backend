@@ -1,17 +1,24 @@
-import fs from 'fs/promises';
-import path from 'path';
+import { model, Schema } from 'mongoose';
 
-const emotionsPath = path.resolve('src/db/data/emotions.json');
+const emotionSchema = new Schema(
+  {
+    id: {
+      type: String,
+      required: true,
+    },
+    label: {
+      type: String,
+      required: true,
+    },
+    icon: {
+      type: String,
+      default: '',
+    },
+  },
+  {
+    versionKey: false,
+    timestamps: true,
+  },
+);
 
-export const getAllEmotions = async () => {
-  const data = await fs.readFile(emotionsPath, 'utf-8');
-  return JSON.parse(data);
-};
-
-export const getEmotionById = async (id) => {
-  const emotions = await getAllEmotions();
-
-  return emotions.find(
-    (emotion) => String(emotion.id) === String(id)
-  );
-};
+export const Emotion = model('Emotion', emotionSchema, 'emotions');

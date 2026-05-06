@@ -1,33 +1,33 @@
-import jwt from 'jsonwebtoken';
 import {
   registerUser,
   loginUser,
   logoutUser,
   createSession,
   setSessionCookies,
-  refreshToken,
+  clearSessionCookies,
+  refreshUserSession,
 } from '../services/authService.js';
+
+const sanitizeUser = (user) => ({
+  id: user._id,
+  name: user.name,
+  email: user.email,
+  gender: user.gender,
+  dueDate: user.dueDate,
+  avatar: user.avatar,
+});
 
 export const registerController = async (req, res, next) => {
   try {
     const user = await registerUser(req.body);
 
-    const newSession = await createSession(user._id);
-    setSessionCookies(res, newSession);
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '24h',
-    });
+    const session = await createSession(user._id);
+    setSessionCookies(res, session);
 
     res.status(201).json({
       message: 'Реєстрація успішна',
       data: {
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-        },
+        user: sanitizeUser(user),
       },
     });
   } catch (error) {
@@ -39,22 +39,13 @@ export const loginUserController = async (req, res, next) => {
   try {
     const user = await loginUser(req.body);
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '24h',
-    });
-
-    const newSession = await createSession(user._id);
-    setSessionCookies(res, newSession);
+    const session = await createSession(user._id);
+    setSessionCookies(res, session);
 
     res.status(200).json({
       message: 'Вхід успішний',
       data: {
-        token,
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-        },
+        user: sanitizeUser(user),
       },
     });
   } catch (error) {
@@ -66,9 +57,7 @@ export const logoutUserController = async (req, res, next) => {
   try {
     await logoutUser(req.cookies);
 
-    res.clearCookie('sessionId');
-    res.clearCookie('accessToken');
-    res.clearCookie('refreshToken');
+    clearSessionCookies(res);
 
     res.status(204).send();
   } catch (error) {
@@ -78,12 +67,14 @@ export const logoutUserController = async (req, res, next) => {
 
 export const refreshTokenController = async (req, res, next) => {
   try {
-    const newSession = await refreshToken(req.cookies);
+    const newSession = await refreshUserSession(req.cookies);
 
     setSessionCookies(res, newSession);
 
-    res.json({ message: 'ok' });
-  } catch (err) {
-    next(err);
+    res.status(200).json({
+      message: 'Сесію оновлено',
+    });
+  } catch (error) {
+    next(error);
   }
 };
