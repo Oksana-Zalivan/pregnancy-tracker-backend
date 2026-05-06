@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
 
 const { Schema, model, models } = mongoose;
 
@@ -25,7 +25,7 @@ const userSchema = new Schema(
     },
     gender: {
       type: String,
-      enum: ["boy", "girl", null],
+      enum: ['boy', 'girl'],
       default: null,
     },
     dueDate: {
@@ -34,13 +34,13 @@ const userSchema = new Schema(
     },
     avatar: {
       type: String,
-      default: "",
+      default: '',
     },
   },
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
 userSchema.methods.toJSON = function () {
@@ -49,5 +49,4 @@ userSchema.methods.toJSON = function () {
   return obj;
 };
 
-export const User = models.user || model("user", userSchema);
-
+export const User = models.user || model('user', userSchema);

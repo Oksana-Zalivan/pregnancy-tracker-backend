@@ -1,29 +1,31 @@
-import express from "express";
-import { authenticate } from "../middlewares/authenticate.js";
+import express from 'express';
+import { celebrate } from 'celebrate';
+
 import {
   getCurrentUserController,
   updateUserProfileController,
   updateUserAvatar,
-} from "../controllers/userController.js";
-import { validateBody } from "../middlewares/validateBody.js";
-import { updateUserSchema } from "../validation/auth.js";
-import { upload } from "../middlewares/multer.js";
+} from '../controllers/userController.js';
+
+import { authenticate } from '../middlewares/authenticate.js';
+import { updateUserSchema } from '../validation/auth.js';
+import { upload } from '../middlewares/multer.js';
 
 const router = express.Router();
 
-router.get("/current", authenticate, getCurrentUserController);
+router.get('/current', authenticate, getCurrentUserController);
 
 router.patch(
-  "/profile",
+  '/profile',
   authenticate,
-  validateBody(updateUserSchema),
+  celebrate(updateUserSchema),
   updateUserProfileController,
 );
 
 router.patch(
-  "/avatar",
+  '/avatar',
   authenticate,
-  upload.single("avatar"),
+  upload.single('avatar'),
   updateUserAvatar,
 );
 

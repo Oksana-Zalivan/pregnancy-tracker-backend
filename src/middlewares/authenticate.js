@@ -1,28 +1,49 @@
-export const authenticate = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+import { Session } from '../models/session.js';
+import { User } from '../models/user.js';
 
-  if (!authHeader) {
-    return res.status(401).json({
-      message: "Користувач не авторизований",
-    });
-  }
-
+export const authenticate = async (req, res, next) => {
   try {
-    const token = authHeader.split(" ")[1];
+    const { sessionId, refreshToken } = req.cookies;
 
-    if (!token) {
+    if (!sessionId || !refreshToken) {
       return res.status(401).json({
-        message: "Користувач не авторизований",
+        message: 'Користувач не авторизований',
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const session = await Session.findOne({
+      _id: sessionId,
+      refreshToken,
+    });
 
-    req.user = decoded;
+    if (!session) {
+      return res.status(401).json({
+        message: 'Сесія невалідна',
+      });
+    }
+
+    const isExpired = new Date() > new Date(session.refreshTokenValidUntil);
+
+    if (isExpired) {
+      await Session.deleteOne({ _id: sessionId });
+
+      return res.status(401).json({
+        message: 'Сесія протермінована',
+      });
+    }
+
+    const user = await User.findById(session.userId);
+
+    if (!user) {
+      return res.status(401).json({
+        message: 'Користувача не знайдено',
+      });
+    }
+
+    req.user = user;
+
     next();
   } catch (error) {
-    return res.status(401).json({
-      message: "Користувач не авторизований",
-    });
+    next(error);
   }
 };
