@@ -1,19 +1,41 @@
 import {
   getBabyByWeekNumber,
   getMomBodyByWeekNumber,
-} from "../services/weekService.js";
+} from '../services/weekService.js';
+
+const validateWeekNumber = (weekNumber) => {
+  return Number.isInteger(weekNumber) && weekNumber >= 1 && weekNumber <= 40;
+};
+
+const normalizeCurrentWeekResponse = ({
+  weekNumber,
+  daysUntilBirth,
+  baby,
+}) => ({
+  weekNumber,
+  daysUntilBirth,
+  baby: {
+    analogy: baby.analogy,
+    size: baby.babySize,
+    weight: baby.babyWeight,
+    image: baby.image,
+    activity: baby.babyActivity,
+    development: baby.babyDevelopment,
+  },
+  momTip: baby.momDailyTips?.[0] ?? null,
+});
 
 export const getBabyByWeek = async (req, res, next) => {
   try {
     const weekNumber = Number(req.params.weekNumber);
 
-    if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 40) {
+    if (!validateWeekNumber(weekNumber)) {
       return res.status(400).json({
-        message: "Номер тижня має бути цілим числом від 1 до 40 ",
+        message: 'Номер тижня має бути цілим числом від 1 до 40',
       });
     }
 
-    const week = await weekService.getBabyByWeekNumber(weekNumber);
+    const week = await getBabyByWeekNumber(weekNumber);
 
     if (!week) {
       return res.status(404).json({
@@ -21,7 +43,10 @@ export const getBabyByWeek = async (req, res, next) => {
       });
     }
 
-    return res.status(200).json(week);
+    return res.status(200).json({
+      message: 'Дані про розвиток дитини отримано',
+      data: week,
+    });
   } catch (error) {
     next(error);
   }
@@ -31,20 +56,24 @@ export const getMomBodyByWeek = async (req, res, next) => {
   try {
     const weekNumber = Number(req.params.weekNumber);
 
-    if (!Number.isInteger(weekNumber) || weekNumber < 1 || weekNumber > 40) {
+    if (!validateWeekNumber(weekNumber)) {
       return res.status(400).json({
-        message: "Номер тижня має бути цілим числом від 1 до 40",
+        message: 'Номер тижня має бути цілим числом від 1 до 40',
       });
     }
 
-    const week = await weekService.getMomBodyByWeekNumber(weekNumber);
+    const week = await getMomBodyByWeekNumber(weekNumber);
+
     if (!week) {
       return res.status(404).json({
         message: `Дані мами за тиждень ${weekNumber} не знайдено`,
       });
     }
 
-    return res.status(200).json(week);
+    return res.status(200).json({
+      message: 'Дані про стан мами отримано',
+      data: week,
+    });
   } catch (error) {
     next(error);
   }
@@ -52,36 +81,25 @@ export const getMomBodyByWeek = async (req, res, next) => {
 
 export const getPublicCurrentWeek = async (req, res, next) => {
   try {
-    // Для незареєстрованого користувача завжди 1-й тиждень
     const weekNumber = 1;
 
-    const [baby, mom] = await Promise.all([
-      getBabyByWeekNumber(weekNumber),
-      getMomBodyByWeekNumber(weekNumber)
+    const baby = await getBabyByWeekNumber(weekNumber);
 
-    ]);
-
-    if (!baby || !mom) {
-      return res
-        .status(404)
-        .json({ message: "Дані початкового тижня не знайдено" });
+    if (!baby) {
+      return res.status(404).json({
+        message: 'Дані початкового тижня не знайдено',
+      });
     }
 
-    const daysUntilBirth = 40 * 7; 
+    const daysUntilBirth = 40 * 7;
 
     return res.status(200).json({
-      weekNumber,
-      daysUntilBirth,
-      baby: {
-        analogy: baby.analogy,
-        size: baby.babySize,
-        weight: baby.babyWeight,
-        image: baby.image,
-        activity: baby.babyActivity,
-        development: baby.babyDevelopment,
-      },
-      // Поради в ТЗ щоденні, для 1-го тижня повертаємо першу
-      momTip: baby.momDailyTips[0] ?? null,
+      message: 'Публічні дані поточного тижня отримано',
+      data: normalizeCurrentWeekResponse({
+        weekNumber,
+        daysUntilBirth,
+        baby,
+      }),
     });
   } catch (error) {
     next(error);
@@ -90,12 +108,6 @@ export const getPublicCurrentWeek = async (req, res, next) => {
 
 export const getPrivateCurrentWeek = async (req, res, next) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({
-        message: 'Користувач не авторизований',
-      });
-    }
-
     const user = req.user;
 
     const today = new Date();
@@ -105,7 +117,11 @@ export const getPrivateCurrentWeek = async (req, res, next) => {
 
     if (user.dueDate) {
       const dueDate = new Date(user.dueDate);
-      daysUntilBirth = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+
+      daysUntilBirth = Math.ceil(
+        (dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+      );
+
       passedDays = 280 - daysUntilBirth;
     }
 
@@ -113,35 +129,25 @@ export const getPrivateCurrentWeek = async (req, res, next) => {
 
     if (weekNumber < 1) weekNumber = 1;
     if (weekNumber > 40) weekNumber = 40;
-
     if (daysUntilBirth < 0) daysUntilBirth = 0;
 
-    const [baby, mom] = await Promise.all([
-      getBabyByWeekNumber(weekNumber),
-      getMomBodyByWeekNumber(weekNumber),
-    ]);
+    const baby = await getBabyByWeekNumber(weekNumber);
 
-    if (!baby || !mom) {
+    if (!baby) {
       return res.status(404).json({
         message: `Дані для ${weekNumber} тижня не знайдено`,
       });
     }
 
     return res.status(200).json({
-      weekNumber,
-      daysUntilBirth,
-      baby: {
-        analogy: baby.analogy,
-        size: baby.babySize,
-        weight: baby.babyWeight,
-        image: baby.image,
-        activity: baby.babyActivity,
-        development: baby.babyDevelopment,
-      },
-      momTip: baby.momDailyTips?.[0] ?? null,
+      message: 'Приватні дані поточного тижня отримано',
+      data: normalizeCurrentWeekResponse({
+        weekNumber,
+        daysUntilBirth,
+        baby,
+      }),
     });
   } catch (error) {
     next(error);
   }
 };
-

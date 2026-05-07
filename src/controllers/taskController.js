@@ -1,11 +1,11 @@
-import { Task } from "../models/task.js";
+import { Task } from '../models/task.js';
 
 export const getAllTasks = async (req, res, next) => {
   try {
     const tasks = await Task.find({ userId: req.user._id }).sort({ date: 1 });
 
     res.status(200).json({
-      message: "Завдання отримано",
+      message: 'Завдання отримано',
       data: tasks,
     });
   } catch (error) {
@@ -21,7 +21,7 @@ export const createTask = async (req, res, next) => {
     });
 
     res.status(201).json({
-      message: "Завдання створено",
+      message: 'Завдання створено',
       data: task,
     });
   } catch (error) {
@@ -37,17 +37,17 @@ export const updateTaskStatus = async (req, res, next) => {
     const updatedTask = await Task.findOneAndUpdate(
       { _id: taskId, userId: req.user._id },
       { isDone },
-      { new: true }
+      { new: true },
     );
 
     if (!updatedTask) {
       return res.status(404).json({
-        message: "Завдання не знайдено",
+        message: 'Завдання не знайдено',
       });
     }
 
     res.status(200).json({
-      message: "Статус оновлено",
+      message: 'Статус оновлено',
       data: updatedTask,
     });
   } catch (error) {
