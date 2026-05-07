@@ -1,8 +1,7 @@
-import dotenv from 'dotenv';
+import 'dotenv/config';
+
 import { setupServer } from './app.js';
 import { initMongoConnection } from './db/initMongoConnection.js';
-
-dotenv.config();
 
 const PORT = process.env.PORT || 3001;
 
